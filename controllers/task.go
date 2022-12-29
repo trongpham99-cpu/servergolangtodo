@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	models "trongpham.dev/todo/models"
 	services "trongpham.dev/todo/services"
 )
@@ -50,11 +50,8 @@ func GetDetail(w http.ResponseWriter, req *http.Request) {
 	response := map[string]interface{}{}
 
 	query := req.URL.Query()
-	id := query.Get("id")
-	objId, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.D{{Key: "_id", Value: objId}}
 
-	response, err := services.GetDetail(filter)
+	response, err := services.GetDetailLookUp(query)
 
 	if err != nil {
 
@@ -117,8 +114,9 @@ func UpdateTask(w http.ResponseWriter, req *http.Request) {
 	}
 
 	filter := bson.D{{"_id", task.ID}}
+	update := bson.D{{"$set", task}}
 
-	response, err = services.UpdateTask(filter, &task)
+	response, err = services.UpdateTask(filter, update)
 
 	if err != nil {
 		response = map[string]interface{}{"error": err.Error()}
@@ -140,15 +138,9 @@ func DeleteTask(w http.ResponseWriter, req *http.Request) {
 
 	response := map[string]interface{}{}
 
-	task := models.Task{}
+	vars := mux.Vars(req)
 
-	err := json.NewDecoder(req.Body).Decode(&task)
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	response, err = services.DeleteTask(&task)
+	response, err := services.DeleteTask(vars["id"])
 
 	if err != nil {
 		response = map[string]interface{}{"error": err.Error()}

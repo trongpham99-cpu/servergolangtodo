@@ -1,6 +1,10 @@
 package services
 
 import (
+	"net/url"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	config "trongpham.dev/todo/helpers"
@@ -72,6 +76,46 @@ func GetDetail(filter interface{}) (map[string]interface{}, error) {
 	return res, nil
 }
 
+func GetDetailLookUp(query url.Values) (map[string]interface{}, error) {
+
+	// objId, _ := primitive.ObjectIDFromHex(query.Get("id"))
+
+	// filter := bson.D{{Key: "_id", Value: objId}}
+
+	// matchStage := bson.D{{Key: "$match", Value: filter}}
+
+	lookupStage := bson.D{{
+		"$lookup",
+		bson.D{
+			{"from", "users"},
+			{"localField", "userID"},
+			{"foreignField", "_id"},
+			{"as", "user"}}}}
+
+	showLoadedCursor, err := config.TasksCollection.Aggregate(config.Ctx,
+		mongo.Pipeline{lookupStage})
+
+	if err != nil {
+		return nil, err
+	}
+
+	var tasks []models.Task
+
+	if err = showLoadedCursor.All(config.Ctx, &tasks); err != nil {
+		return nil, err
+	}
+
+	res := map[string]interface{}{
+		"message": "Task fetched successfully",
+		"status":  200,
+		"data": map[string]interface{}{
+			"result": tasks,
+		},
+	}
+
+	return res, nil
+}
+
 func CreateTask(task *models.Task) (map[string]interface{}, error) {
 
 	result, err := config.TasksCollection.InsertOne(config.Ctx, task)
@@ -111,8 +155,13 @@ func UpdateTask(filter interface{}, update interface{}) (map[string]interface{},
 	return res, nil
 }
 
-func DeleteTask(filter interface{}) (map[string]interface{}, error) {
+func DeleteTask(id string) (map[string]interface{}, error) {
 
+	objID, _ := primitive.ObjectIDFromHex(id)
+
+	filter := bson.M{
+		"_id": objID,
+	}
 	result, err := config.TasksCollection.DeleteOne(config.Ctx, filter)
 
 	if err != nil {

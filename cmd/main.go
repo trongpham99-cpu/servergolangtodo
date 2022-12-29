@@ -30,7 +30,7 @@ func main() {
 	router.HandleFunc("/api/v1/task/get-detail", controllers.GetDetail).Methods("GET")
 	router.HandleFunc("/api/v1/task/create", controllers.CreateTask).Methods("POST")
 	router.HandleFunc("/api/v1/task/update", controllers.UpdateTask).Methods("PUT")
-	router.HandleFunc("/api/v1/task/delete", controllers.DeleteTask).Methods("DELETE")
+	router.HandleFunc("/api/v1/task/delete/{id}", controllers.DeleteTask).Methods("DELETE")
 
 	//user
 	router.HandleFunc("/api/v1/user/create", controllers.CreateUser).Methods("POST")
@@ -38,7 +38,13 @@ func main() {
 	//project
 	router.HandleFunc("/api/v1/project/create", controllers.CreateProject).Methods("POST")
 
-	handler := cors.Default().Handler(router)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:4200", "https://todoapp.trongpham.dev/"},
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(router)
 	fmt.Println("Server listenning on port 8080 ...")
 	http.ListenAndServe(":8080", handler)
 }
