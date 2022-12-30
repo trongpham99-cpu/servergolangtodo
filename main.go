@@ -39,7 +39,7 @@ func main() {
 	router.HandleFunc("/api/v1/project/create", controllers.CreateProject).Methods("POST")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:4200", "https://todoapp.trongpham.dev/"},
+		AllowedOrigins:   []string{},
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
 		AllowCredentials: true,
 	})
