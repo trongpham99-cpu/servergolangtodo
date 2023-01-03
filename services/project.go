@@ -28,33 +28,43 @@ func CreateProject(project *models.Project) (map[string]interface{}, error) {
 	return res, nil
 }
 
-func GetProjects(filter interface{}) ([]*models.Project, error) {
+func GetProjects(filter interface{}) ([]*map[string]interface{}, error) {
 
-	var projects []*models.Project
+	var projects []*map[string]interface{}
 
-	// cur, err := config.ProjectsCollection.Find(config.Ctx, filter)
 	lookupUser := bson.D{
-		{"$lookup", bson.D{
-			{"from", "users"},
-			{"localField", "userID"},
-			{"foreignField", "_id"},
-			{"as", "user"},
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "users"},
+			{Key: "localField", Value: "userID"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "user"},
 		}},
-		// {
-		// 	"$unwind", bson.D{
-		// 		{"path", "$user"},
-		// 		{"preserveNullAndEmptyArrays", true},
-		// 	},
-		// },
 	}
-	cur, err := config.ProjectsCollection.Aggregate(config.Ctx, mongo.Pipeline{lookupUser})
+	projectProject := bson.D{
+		{Key: "$project", Value: bson.D{
+			{Key: "userID", Value: 0},
+			{Key: "user._id", Value: 0},
+		}},
+	}
+	unwindUser := bson.D{
+		{Key: "$unwind", Value: bson.D{
+			{Key: "path", Value: "$user"},
+			{Key: "preserveNullAndEmptyArrays", Value: true},
+		}},
+	}
+
+	cur, err := config.ProjectsCollection.Aggregate(config.Ctx, mongo.Pipeline{lookupUser, projectProject, unwindUser})
+
+	if err != nil {
+		panic(err)
+	}
 
 	if err != nil {
 		return nil, err
 	}
 
 	for cur.Next(config.Ctx) {
-		var t models.Project
+		var t map[string]interface{}
 		err := cur.Decode(&t)
 
 		if err != nil {

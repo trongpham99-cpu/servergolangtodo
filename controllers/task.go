@@ -14,7 +14,7 @@ import (
 func GetTasks(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response := []*models.Task{}
+	var response []*map[string]interface{}
 
 	data := map[string]interface{}{}
 
@@ -30,20 +30,23 @@ func GetTasks(w http.ResponseWriter, req *http.Request) {
 	response, err = services.GetTasks(filter)
 
 	if err != nil {
-
 		// response = []*models.Taskinterface{}{"error": err.Error()}
-
 	}
 
-	enc := json.NewEncoder(w)
+	res := map[string]interface{}{
+		"message": "Task fetched successfully",
+		"status":  200,
+		"data": map[string]interface{}{
+			"result": response,
+		},
+	}
 
-	enc.SetIndent("", "  ")
-
-	if err := enc.Encode(response); err != nil {
+	if err := json.NewEncoder(w).Encode(res); err != nil {
 
 		fmt.Println(err.Error())
 
 	}
+
 }
 
 func GetDetail(w http.ResponseWriter, req *http.Request) {
@@ -53,7 +56,7 @@ func GetDetail(w http.ResponseWriter, req *http.Request) {
 
 	query := req.URL.Query()
 
-	response, err := services.GetDetailLookUp(query)
+	response, err := services.GetDetail(query)
 
 	if err != nil {
 

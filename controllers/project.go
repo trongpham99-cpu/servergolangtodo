@@ -43,7 +43,7 @@ func CreateProject(w http.ResponseWriter, req *http.Request) {
 func GetProjects(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response := []*models.Project{}
+	response := []*map[string]interface{}{}
 
 	data := map[string]interface{}{}
 
@@ -59,16 +59,18 @@ func GetProjects(w http.ResponseWriter, req *http.Request) {
 	response, err = services.GetProjects(filter)
 
 	if err != nil {
-
-		// response = []*models.Taskinterface{}{"error": err.Error()}
-
+		response = []*map[string]interface{}{}
 	}
 
-	enc := json.NewEncoder(w)
+	res := map[string]interface{}{
+		"message": "Task fetched successfully",
+		"status":  200,
+		"data": map[string]interface{}{
+			"result": response,
+		},
+	}
 
-	enc.SetIndent("", "  ")
-
-	if err := enc.Encode(response); err != nil {
+	if err := json.NewEncoder(w).Encode(res); err != nil {
 
 		fmt.Println(err.Error())
 

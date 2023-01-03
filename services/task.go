@@ -1,8 +1,6 @@
 package services
 
 import (
-	"net/url"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,18 +11,72 @@ import (
 )
 
 // page & limit
-func GetTasks(filter interface{}) ([]*models.Task, error) {
+// func GetTasks(filter interface{}) ([]*models.Task, error) {
+func GetTasks(filter interface{}) ([]*map[string]interface{}, error) {
 
-	var tasks []*models.Task
+	var tasks []*map[string]interface{}
 
-	cur, err := config.TasksCollection.Find(config.Ctx, filter)
+	id, _ := primitive.ObjectIDFromHex("63b3d337a809e2cf0efc1efb")
+	projectMatch := bson.D{
+		{
+			Key: "$match", Value: bson.D{
+				{Key: "projectID", Value: id},
+			},
+		}}
+
+	userLookup := bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "users"},
+			{Key: "localField", Value: "userID"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "user"},
+		}},
+	}
+
+	projectLookup := bson.D{
+		{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "projects"},
+			{Key: "localField", Value: "projectID"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "project"},
+		}},
+	}
+
+	projectTask := bson.D{
+		{Key: "$project", Value: bson.D{
+			{Key: "userID", Value: 0},
+			{Key: "user._id", Value: 0},
+			{Key: "project._id", Value: 0},
+			{Key: "project.userID", Value: 0},
+			// {Key: "projectID", Value: 0},
+		}},
+	}
+
+	unwind := bson.D{
+		{Key: "$unwind", Value: bson.D{
+			{Key: "path", Value: "$user"},
+			{Key: "path", Value: "$project"},
+			{Key: "preserveNullAndEmptyArrays", Value: true},
+		}},
+	}
+
+	cur, err := config.TasksCollection.Aggregate(
+		config.Ctx,
+		mongo.Pipeline{
+			projectMatch,
+			userLookup,
+			projectLookup,
+			projectTask,
+			unwind,
+		},
+	)
 
 	if err != nil {
 		return nil, err
 	}
 
 	for cur.Next(config.Ctx) {
-		var t models.Task
+		var t map[string]interface{}
 		err := cur.Decode(&t)
 
 		if err != nil {
@@ -44,15 +96,6 @@ func GetTasks(filter interface{}) ([]*models.Task, error) {
 		return nil, mongo.ErrNoDocuments
 	}
 
-	// res := tasks []*models.Task{
-
-	// 	"message": "Tasks fetched successfully",
-	// 	"status":  200,
-	// 	"data": map[string]interface{}{
-	// 		"result": tasks,
-	// 		"count":  len(tasks)},
-	// }
-
 	return tasks, nil
 }
 
@@ -71,46 +114,6 @@ func GetDetail(filter interface{}) (map[string]interface{}, error) {
 		"status":  200,
 		"data": map[string]interface{}{
 			"result": task,
-		},
-	}
-
-	return res, nil
-}
-
-func GetDetailLookUp(query url.Values) (map[string]interface{}, error) {
-
-	// objId, _ := primitive.ObjectIDFromHex(query.Get("id"))
-
-	// filter := bson.D{{Key: "_id", Value: objId}}
-
-	// matchStage := bson.D{{Key: "$match", Value: filter}}
-
-	lookupStage := bson.D{{
-		"$lookup",
-		bson.D{
-			{"from", "users"},
-			{"localField", "userID"},
-			{"foreignField", "_id"},
-			{"as", "user"}}}}
-
-	showLoadedCursor, err := config.TasksCollection.Aggregate(config.Ctx,
-		mongo.Pipeline{lookupStage})
-
-	if err != nil {
-		return nil, err
-	}
-
-	var tasks []models.Task
-
-	if err = showLoadedCursor.All(config.Ctx, &tasks); err != nil {
-		return nil, err
-	}
-
-	res := map[string]interface{}{
-		"message": "Task fetched successfully",
-		"status":  200,
-		"data": map[string]interface{}{
-			"result": tasks,
 		},
 	}
 
