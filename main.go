@@ -37,6 +37,7 @@ func main() {
 
 	//project
 	router.HandleFunc("/api/v1/project/create", controllers.CreateProject).Methods("POST")
+	router.HandleFunc("/api/v1/project/get-all", controllers.GetProjects).Methods("GET")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{},

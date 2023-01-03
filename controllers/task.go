@@ -14,7 +14,7 @@ import (
 func GetTasks(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	response := map[string]interface{}{}
+	response := []*models.Task{}
 
 	data := map[string]interface{}{}
 
@@ -23,6 +23,8 @@ func GetTasks(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+
+	defer req.Body.Close()
 
 	filter := bson.D{{}}
 	response, err = services.GetTasks(filter)

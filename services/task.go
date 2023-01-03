@@ -12,7 +12,8 @@ import (
 	models "trongpham.dev/todo/models"
 )
 
-func GetTasks(filter interface{}) (map[string]interface{}, error) {
+// page & limit
+func GetTasks(filter interface{}) ([]*models.Task, error) {
 
 	var tasks []*models.Task
 
@@ -43,16 +44,16 @@ func GetTasks(filter interface{}) (map[string]interface{}, error) {
 		return nil, mongo.ErrNoDocuments
 	}
 
-	res := map[string]interface{}{
+	// res := tasks []*models.Task{
 
-		"message": "Tasks fetched successfully",
-		"status":  200,
-		"data": map[string]interface{}{
-			"result": tasks,
-			"count":  len(tasks)},
-	}
+	// 	"message": "Tasks fetched successfully",
+	// 	"status":  200,
+	// 	"data": map[string]interface{}{
+	// 		"result": tasks,
+	// 		"count":  len(tasks)},
+	// }
 
-	return res, nil
+	return tasks, nil
 }
 
 func GetDetail(filter interface{}) (map[string]interface{}, error) {

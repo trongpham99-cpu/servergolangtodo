@@ -13,8 +13,8 @@ type Task struct {
 	Status      string             `bson:"status,omitempty" json:"status,omitempty"`
 	ProjectID   primitive.ObjectID `bson:"projectID,omitempty" json:"projectID,omitempty"`
 	UserID      primitive.ObjectID `bson:"userID,omitempty" json:"userID,omitempty"`
-	// Page        int                 `bson:"page ,omitempty" json:"page"`
-	// Count       int                 `bson:"count,omitempty" json:"count"`
-	CreateAt time.Time           `json:"createAt"`
-	UpdateAt primitive.Timestamp `json:"updateAt"`
+	Page        int                `bson:"page ,omitempty" json:"page"`
+	Count       int                `bson:"count,omitempty" json:"count"`
+	CreateAt    time.Time          `json:"created_at" bson:"created_at"`
+	UpdateAt    time.Time          `json:"updated_at" bson:"updated_at"`
 }

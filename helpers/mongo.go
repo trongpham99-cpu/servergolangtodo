@@ -10,18 +10,20 @@ import (
 )
 
 var (
-	UsersCollection    *mongo.Collection
-	ProjectsCollection *mongo.Collection
-	TasksCollection    *mongo.Collection
-	Ctx                = context.TODO()
+	UsersCollection          *mongo.Collection
+	ProjectsCollection       *mongo.Collection
+	TasksCollection          *mongo.Collection
+	CommentsCollection       *mongo.Collection
+	CommentsBucketCollection *mongo.Collection
+	Ctx                      = context.TODO()
 )
 
 func MongoConnection() {
 	// Set client options
-	// host := "localhost"
-	// port := "27017"
-	// clientOptions := options.Client().ApplyURI("mongodb://" + host + ":" + port)
-	clientOptions := options.Client().ApplyURI("mongodb+srv://admin:admin@cluster0.mvebh.mongodb.net")
+	host := "localhost"
+	port := "27017"
+	clientOptions := options.Client().ApplyURI("mongodb://" + host + ":" + port)
+	// clientOptions := options.Client().ApplyURI("mongodb+srv://admin:admin@cluster0.mvebh.mongodb.net")
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -44,4 +46,7 @@ func MongoConnection() {
 	ProjectsCollection = db.Collection("projects")
 	UsersCollection = db.Collection("users")
 	TasksCollection = db.Collection("tasks")
+	CommentsCollection = db.Collection("comments")
+	CommentsBucketCollection = db.Collection("commentsBucket")
+
 }
