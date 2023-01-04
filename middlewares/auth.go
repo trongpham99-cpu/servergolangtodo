@@ -37,18 +37,23 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		header := r.Header.Get("Authorization")
+
+		if header == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(`{"message": "Unauthorized"}`))
+			return
+		}
+
 		idToken := header[7:]
 
 		res, err := AuthClient.VerifyIDToken(context.Background(), idToken)
 
 		if err != nil {
-			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(`{"message": "Unauthorized"}`))
 			return
-		}
-
-		if err != nil {
-			fmt.Println(err.Error())
 		}
 
 		fmt.Println(res.UID)
