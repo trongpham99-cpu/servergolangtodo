@@ -16,13 +16,13 @@ func GetTasks(filter interface{}) ([]*map[string]interface{}, error) {
 
 	var tasks []*map[string]interface{}
 
-	id, _ := primitive.ObjectIDFromHex("63b3d337a809e2cf0efc1efb")
-	projectMatch := bson.D{
-		{
-			Key: "$match", Value: bson.D{
-				{Key: "projectID", Value: id},
-			},
-		}}
+	// id, _ := primitive.ObjectIDFromHex("63b3d337a809e2cf0efc1efb")
+	// projectMatch := bson.D{
+	// 	{
+	// 		Key: "$match", Value: bson.D{
+	// 			{Key: "projectID", Value: id},
+	// 		},
+	// 	}}
 
 	userLookup := bson.D{
 		{Key: "$lookup", Value: bson.D{
@@ -60,14 +60,22 @@ func GetTasks(filter interface{}) ([]*map[string]interface{}, error) {
 		}},
 	}
 
+	sort := bson.D{
+		{Key: "$sort", Value: bson.D{
+			{Key: "created_at", Value: -1},
+		}},
+	}
+
 	cur, err := config.TasksCollection.Aggregate(
 		config.Ctx,
 		mongo.Pipeline{
-			projectMatch,
+			// projectMatch,
 			userLookup,
 			projectLookup,
 			projectTask,
 			unwind,
+			sort,
+			// facet,
 		},
 	)
 

@@ -11,6 +11,7 @@ type Task struct {
 	Title       string             `bson:"title,omitempty" json:"title,omitempty"`
 	Description string             `bson:"description,omitempty" json:"description,omitempty"`
 	Status      string             `bson:"status,omitempty" json:"status,omitempty"`
+	PhotoURL    string             `bson:"photoURL,omitempty" json:"photoURL,omitempty"`
 	ProjectID   primitive.ObjectID `bson:"projectID,omitempty" json:"projectID,omitempty"`
 	UserID      primitive.ObjectID `bson:"userID,omitempty" json:"userID,omitempty"`
 	Page        int                `bson:"page ,omitempty" json:"page"`
