@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -14,8 +12,10 @@ type Task struct {
 	PhotoURL    string             `bson:"photoURL,omitempty" json:"photoURL,omitempty"`
 	ProjectID   primitive.ObjectID `bson:"projectID,omitempty" json:"projectID,omitempty"`
 	UserID      primitive.ObjectID `bson:"userID,omitempty" json:"userID,omitempty"`
-	Page        int                `bson:"page ,omitempty" json:"page"`
-	Count       int                `bson:"count,omitempty" json:"count"`
-	CreateAt    time.Time          `json:"created_at" bson:"created_at"`
-	UpdateAt    time.Time          `json:"updated_at" bson:"updated_at"`
+	Page        int                `bson:"page" json:"page"`
+	Count       int                `bson:"count" json:"count"`
+	Deadline    int64              `json:"deadline" bson:"deadline"`
+	FinishedAt  int64              `json:"finished_at" bson:"finished_at"`
+	CreateAt    int64              `json:"created_at" bson:"created_at"`
+	UpdateAt    int64              `json:"updated_at" bson:"updated_at"`
 }

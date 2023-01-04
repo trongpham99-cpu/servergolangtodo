@@ -13,6 +13,7 @@ import (
 	"github.com/rs/cors"
 
 	config "trongpham.dev/todo/helpers"
+	middlewares "trongpham.dev/todo/middlewares"
 
 	controllers "trongpham.dev/todo/controllers"
 )
@@ -21,13 +22,17 @@ func main() {
 
 	config.MongoConnection()
 
+	middlewares.InitFirebase()
+
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", _initServer)
 
-	//task
+	//get task for dev
 	router.HandleFunc("/api/v1/task/get-all", controllers.GetTasks).Methods("GET")
 	router.HandleFunc("/api/v1/task/get-detail", controllers.GetDetail).Methods("GET")
+
+	//task
 	router.HandleFunc("/api/v1/task/create", controllers.CreateTask).Methods("POST")
 	router.HandleFunc("/api/v1/task/update", controllers.UpdateTask).Methods("PUT")
 	router.HandleFunc("/api/v1/task/delete/{id}", controllers.DeleteTask).Methods("DELETE")
@@ -44,6 +49,9 @@ func main() {
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
 		AllowCredentials: true,
 	})
+
+	//middleware
+	router.Use(middlewares.LoggingMiddleware)
 
 	handler := c.Handler(router)
 	fmt.Println("Server listenning on port 8080 ...")

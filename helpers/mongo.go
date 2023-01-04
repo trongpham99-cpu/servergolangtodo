@@ -20,10 +20,10 @@ var (
 
 func MongoConnection() {
 	// Set client options
-	// host := "localhost"
-	// port := "27017"
-	// clientOptions := options.Client().ApplyURI("mongodb://" + host + ":" + port)
-	clientOptions := options.Client().ApplyURI("mongodb+srv://admin:admin@cluster0.mvebh.mongodb.net")
+	host := "localhost"
+	port := "27017"
+	clientOptions := options.Client().ApplyURI("mongodb://" + host + ":" + port)
+	// clientOptions := options.Client().ApplyURI("mongodb+srv://admin:admin@cluster0.mvebh.mongodb.net")
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)

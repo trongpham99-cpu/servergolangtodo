@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -129,6 +131,9 @@ func GetDetail(filter interface{}) (map[string]interface{}, error) {
 }
 
 func CreateTask(task *models.Task) (map[string]interface{}, error) {
+
+	task.CreateAt = time.Now().Unix()
+	task.UpdateAt = time.Now().Unix()
 
 	result, err := config.TasksCollection.InsertOne(config.Ctx, task)
 
